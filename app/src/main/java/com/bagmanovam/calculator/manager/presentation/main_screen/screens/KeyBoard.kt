@@ -142,6 +142,7 @@ fun KeyBoard(
                                     CLEAR -> onClickOperation(CalculatorEvent.OnAllClearButtonClick)
                                     EVALUATE -> onClickOperation(CalculatorEvent.OnEvaluateClick)
                                     DOT -> onClickOperation(CalculatorEvent.OnDotClicked)
+                                    PARENTHESIS -> onClickOperation(CalculatorEvent.OnParenthesisClicked)
                                     else -> onClickOperation(
                                         CalculatorEvent.OnCalculatorCommandClick(
                                             symbol

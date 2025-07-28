@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import org.mariuszgromada.math.mxparser.Expression
 
 class CalculatorViewModel : ViewModel() {
 
@@ -22,10 +23,13 @@ class CalculatorViewModel : ViewModel() {
         UiState()
     )
 
+    private var expression = ""
+
     fun onEvent(calculatorEvent: CalculatorEvent) {
         Log.e(TAG, "onEvent: $calculatorEvent")
         when (calculatorEvent) {
             is CalculatorEvent.OnAllClearButtonClick -> {
+                expression = ""
                 _uiState.update {
                     it.copy(
                         expression = "",
@@ -36,27 +40,87 @@ class CalculatorViewModel : ViewModel() {
             }
 
             is CalculatorEvent.OnCalculatorCommandClick -> {
-                val currentExpression = _uiState.value.expression
+                expression += calculatorEvent.buttons.toDisplayableString()
                 _uiState.update {
                     it.copy(
-                        expression = currentExpression + calculatorEvent.buttons.toDisplayableString()
+                        expression = expression,
+                        result = evaluate() ?: ""
                     )
                 }
             }
 
-            CalculatorEvent.OnEvaluateClick -> {}
-            CalculatorEvent.OnDotClicked -> {
-                val currentExpression = _uiState.value.expression
-                if (!currentExpression.contains(Buttons.DOT.toDisplayableString())) {
+            CalculatorEvent.OnEvaluateClick -> {
+                evaluate()?.let { result ->
                     _uiState.update {
                         it.copy(
-                            expression = currentExpression + Buttons.DOT.toDisplayableString()
+                            expression = result,
+                            result = "",
+                            isError = false,
+                            isSuccess = true
+                        )
+                    }
+                } ?: run {
+                    _uiState.update {
+                        it.copy(
+                            expression = expression,
+                            result = "",
+                            isError = true,
+                            isSuccess = false
                         )
                     }
                 }
             }
-            CalculatorEvent.OnParenthesisClicked -> {}
+
+            CalculatorEvent.OnDotClicked -> {
+                expression += Buttons.DOT.toDisplayableString()
+                if (!expression.contains(Buttons.DOT.toDisplayableString())) {
+                    _uiState.update {
+                        it.copy(
+                            expression = expression
+                        )
+                    }
+                }
+            }
+
+            CalculatorEvent.OnParenthesisClicked -> {
+                expression += getCorrectParenthesis()
+                _uiState.update {
+                    it.copy(
+                        expression = expression
+                    )
+                }
+            }
+
             CalculatorEvent.OnPercentClicked -> {}
+        }
+    }
+
+    private fun evaluate(): String? {
+        val result = expression.replace('x', '*')
+            .replace(',', '.')
+            .let { Expression(it) }
+            .calculate()
+            .takeIf { it.isFinite() }?.toString()?.replace('.', ',')
+        Log.e(TAG, "evaluate: $result", )
+        return result
+
+    }
+
+    private fun getCorrectParenthesis(): String {
+        val openParenthesis = Buttons.PARENTHESIS.toDisplayableString().first()
+        val closeParenthesis = Buttons.PARENTHESIS.toDisplayableString().last()
+        val piChar = Buttons.PI.toDisplayableString().first()
+
+        val openParenthesisCount = expression.count { it == openParenthesis }
+        val closeParenthesisCount = expression.count { it == closeParenthesis }
+
+        return when {
+            expression.isEmpty() -> openParenthesis.toString()
+            !expression.last()
+                .isDigit() && expression.last() != closeParenthesis && expression.last() != piChar -> openParenthesis.toString()
+
+            openParenthesisCount > closeParenthesisCount -> closeParenthesis.toString()
+            else -> openParenthesis.toString()
         }
     }
 

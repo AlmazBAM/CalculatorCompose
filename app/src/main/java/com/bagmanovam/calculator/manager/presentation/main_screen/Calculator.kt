@@ -57,6 +57,7 @@ fun Calculator(
                         text = uiState.expression,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onError,
+                            lineHeight = 32.sp,
                             fontSize = 32.sp
                         )
                     )
@@ -64,28 +65,30 @@ fun Calculator(
                         text = "",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            lineHeight = 24.sp,
                             fontSize = 24.sp
                         )
                     )
                 }
-                uiState.isSuccess -> {
-
+                else -> {
+                    Text(
+                        text = uiState.expression,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            lineHeight = 32.sp,
+                            fontSize = 32.sp
+                        )
+                    )
+                    Text(
+                        text = uiState.result,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            lineHeight = 24.sp,
+                            fontSize = 24.sp
+                        )
+                    )
                 }
             }
-            Text(
-                text = uiState.expression,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 32.sp
-                )
-            )
-            Text(
-                text = uiState.result,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 24.sp
-                )
-            )
         }
         KeyBoard(
             onClickOperation = onClickOperation

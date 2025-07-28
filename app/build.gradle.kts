@@ -49,7 +49,9 @@ dependencies {
     debugImplementation(libs.bundles.compose.debug)
 
     implementation(libs.bundles.koin)
-    
+
+    implementation(libs.mathparser.org.mxparser)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
