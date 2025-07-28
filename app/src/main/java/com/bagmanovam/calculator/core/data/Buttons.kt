@@ -1,0 +1,27 @@
+package com.bagmanovam.calculator.core.data
+
+enum class Buttons() {
+    DIGIT_0,
+    DIGIT_1,
+    DIGIT_2,
+    DIGIT_3,
+    DIGIT_4,
+    DIGIT_5,
+    DIGIT_6,
+    DIGIT_7,
+    DIGIT_8,
+    DIGIT_9,
+    DOT,
+    CLEAR,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVIDE,
+    PARENTHESIS,
+    PERCENT,
+    SQRT,
+    PI,
+    POWER,
+    FACTORIAL,
+    EVALUATE,
+}
