@@ -1,13 +1,13 @@
-package com.bagmanovam.calculator.manager.presentation.main_screen
+package com.bagmanovam.calculator.manager.presentation.main_screen.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,24 +18,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bagmanovam.calculator.core.data.Buttons.*
 import com.bagmanovam.calculator.core.presentation.ButtonComponent
+import com.bagmanovam.calculator.core.presentation.utils.toDisplayableString
+import com.bagmanovam.calculator.manager.presentation.main_screen.events.CalculatorEvent
 import com.bagmanovam.calculator.ui.theme.CalculatorTheme
 
 @Composable
 fun KeyBoard(
     modifier: Modifier = Modifier,
-    onClickDigit: (String) -> Unit,
-    onClickOperation: (String) -> Unit,
+    onClickOperation: (CalculatorEvent) -> Unit,
 ) {
 
     val list = listOf(
-        listOf("AC", "()", "%", "÷"),
-        listOf("7", "8", "9", "×"),
-        listOf("4", "5", "6", "+"),
-        listOf("1", "2", "3", "-"),
-        listOf("0", ",", "="),
+        listOf(CLEAR, PARENTHESIS, PERCENT, DIVIDE),
+        listOf(DIGIT_7, DIGIT_8, DIGIT_9, MULTIPLY),
+        listOf(DIGIT_4, DIGIT_5, DIGIT_6, PLUS),
+        listOf(DIGIT_1, DIGIT_2, DIGIT_3, MINUS),
+        listOf(DIGIT_0, DOT, EVALUATE),
     )
-    val digitRegex = Regex("""\d|\.|=""")
+    val digitRegex = Regex("""\d""")
     val spacing = 8.dp
 
     Box(
@@ -43,8 +45,6 @@ fun KeyBoard(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
     ) {
-
-//        val totalWidth = with(LocalDensity.current) { constraints.maxWidth.toDp() }
         Column(
             modifier = modifier
                 .fillMaxWidth(),
@@ -55,8 +55,12 @@ fun KeyBoard(
                 horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
                 Text(
-                    modifier = modifier.weight(1f),
-                    text = "&",
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable {
+                            onClickOperation(CalculatorEvent.OnCalculatorCommandClick(SQRT))
+                        },
+                    text = SQRT.toDisplayableString(),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -64,8 +68,12 @@ fun KeyBoard(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    modifier = modifier.weight(1f),
-                    text = "pi",
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable {
+                            onClickOperation(CalculatorEvent.OnCalculatorCommandClick(PI))
+                        },
+                    text = PI.toDisplayableString(),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -73,8 +81,12 @@ fun KeyBoard(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    modifier = modifier.weight(1f),
-                    text = "^",
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable {
+                            onClickOperation(CalculatorEvent.OnCalculatorCommandClick(POWER))
+                        },
+                    text = POWER.toDisplayableString(),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -82,8 +94,12 @@ fun KeyBoard(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    modifier = modifier.weight(1f),
-                    text = "!",
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable {
+                            onClickOperation(CalculatorEvent.OnCalculatorCommandClick(FACTORIAL))
+                        },
+                    text = FACTORIAL.toDisplayableString(),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -97,9 +113,9 @@ fun KeyBoard(
                     horizontalArrangement = Arrangement.spacedBy(spacing)
                 ) {
                     strings.forEachIndexed { colIndex, symbol ->
-                        val isDigit = digitRegex.matches(symbol)
+                        digitRegex.matches(symbol.toDisplayableString())
                         val weightAndAspectRatio = when {
-                            symbol == "0" -> 2f
+                            symbol == DIGIT_0 -> 2f
                             else -> 1f
                         }
                         val backgroundContainerColor = when {
@@ -118,14 +134,19 @@ fun KeyBoard(
                                 .weight(weightAndAspectRatio)
                                 .aspectRatio(weightAndAspectRatio)
                                 .clip(CircleShape),
-                            symbol = symbol,
+                            symbol = symbol.toDisplayableString(),
                             backgroundContainerColor = backgroundContainerColor,
                             backgroundContentColor = backgroundContentColor,
                             onClick = {
-                                if (isDigit) {
-                                    onClickDigit(symbol)
-                                } else {
-                                    onClickOperation(symbol)
+                                when (symbol) {
+                                    CLEAR -> onClickOperation(CalculatorEvent.OnAllClearButtonClick)
+                                    EVALUATE -> onClickOperation(CalculatorEvent.OnEvaluateClick)
+                                    DOT -> onClickOperation(CalculatorEvent.OnDotClicked)
+                                    else -> onClickOperation(
+                                        CalculatorEvent.OnCalculatorCommandClick(
+                                            symbol
+                                        )
+                                    )
                                 }
                             },
                         )
@@ -143,7 +164,6 @@ private fun KeyBoardPreview() {
     CalculatorTheme {
         KeyBoard(
             modifier = Modifier,
-            onClickDigit = {},
             onClickOperation = {}
         )
     }

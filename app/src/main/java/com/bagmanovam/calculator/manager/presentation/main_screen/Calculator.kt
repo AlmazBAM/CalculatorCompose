@@ -17,11 +17,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bagmanovam.calculator.manager.presentation.main_screen.events.CalculatorEvent
+import com.bagmanovam.calculator.manager.presentation.main_screen.screens.KeyBoard
+import com.bagmanovam.calculator.manager.presentation.main_screen.state.UiState
 import com.bagmanovam.calculator.ui.theme.CalculatorTheme
 
 
 @Composable
-fun Calculator(modifier: Modifier = Modifier) {
+fun Calculator(
+    modifier: Modifier = Modifier,
+    uiState: UiState,
+    onClickOperation: (CalculatorEvent) -> Unit,
+) {
 
     Column(
         modifier
@@ -44,15 +51,36 @@ fun Calculator(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.End
         ) {
+            when {
+                uiState.isError -> {
+                    Text(
+                        text = uiState.expression,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onError,
+                            fontSize = 32.sp
+                        )
+                    )
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontSize = 24.sp
+                        )
+                    )
+                }
+                uiState.isSuccess -> {
+
+                }
+            }
             Text(
-                text = "48.5",
+                text = uiState.expression,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 24.sp
+                    fontSize = 32.sp
                 )
             )
             Text(
-                text = "360",
+                text = uiState.result,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = 24.sp
@@ -60,8 +88,7 @@ fun Calculator(modifier: Modifier = Modifier) {
             )
         }
         KeyBoard(
-            onClickDigit = { },
-            onClickOperation = { }
+            onClickOperation = onClickOperation
         )
     }
 }
@@ -71,7 +98,16 @@ fun Calculator(modifier: Modifier = Modifier) {
 private fun CalculatorPreview() {
     Scaffold { inner ->
         CalculatorTheme {
-            Calculator(modifier = Modifier.padding(inner))
+            Calculator(
+                modifier = Modifier.padding(inner),
+                uiState = uiState,
+                onClickOperation = {}
+            )
         }
     }
 }
+
+internal val uiState = UiState(
+    expression = "45*6",
+    result = "360"
+)
