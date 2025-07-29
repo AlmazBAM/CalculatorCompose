@@ -51,6 +51,7 @@ class CalculatorViewModel : ViewModel() {
 
             CalculatorEvent.OnEvaluateClick -> {
                 evaluate()?.let { result ->
+                    expression = result
                     _uiState.update {
                         it.copy(
                             expression = result,
