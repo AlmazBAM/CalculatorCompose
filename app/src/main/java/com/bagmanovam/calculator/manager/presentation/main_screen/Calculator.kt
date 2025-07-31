@@ -56,7 +56,7 @@ fun Calculator(
                     Text(
                         text = uiState.expression,
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onError,
+                            color = MaterialTheme.colorScheme.error,
                             lineHeight = 32.sp,
                             fontSize = 32.sp
                         )

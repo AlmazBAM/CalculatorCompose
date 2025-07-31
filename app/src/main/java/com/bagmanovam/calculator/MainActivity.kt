@@ -27,7 +27,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.bagmanovam.calculator.manager.presentation.bmi.BMICalculatorViewModel
 import com.bagmanovam.calculator.manager.presentation.main_screen.CalculatorViewModel
 import com.bagmanovam.calculator.ui.theme.CalculatorTheme
 import com.bagmanovam.calculator.ui.theme.greenBackground
@@ -45,6 +49,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+//        window.setWindowAnimations(0)
         setContent {
             AppContent()
         }
@@ -55,15 +60,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppContent() {
     CalculatorTheme {
+        var appBarLabel by remember { mutableStateOf(Calculator::class.java.simpleName) }
         val navController = rememberNavController()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val isMainScreen = navBackStackEntry?.destination?.hasRoute(Calculator::class) == true ||
+                navBackStackEntry?.destination?.hasRoute(BMICalculator::class) == true
 
         ModalNavigationDrawer(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface),
             drawerState = drawerState,
+            gesturesEnabled = isMainScreen,
             drawerContent = {
                 ModalDrawerSheet(
                     modifier = Modifier
@@ -83,15 +92,22 @@ fun AppContent() {
                                 text = "Calculator",
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontSize = 24.sp,
-                                    color = if (navBackStackEntry?.destination?.hasRoute(Calculator::class) == true) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onSurface
+                                    color = if (navBackStackEntry?.destination?.hasRoute(Calculator::class) == true)
+                                        MaterialTheme.colorScheme.surfaceTint
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
                                 ),
                             )
                         },
                         selected = navBackStackEntry?.destination?.hasRoute(Calculator::class) == true,
                         onClick = {
+                            appBarLabel = Calculator::class.java.simpleName
                             navController.navigate(Calculator) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+                                popUpTo(
+                                    navController.currentDestination?.id
+                                        ?: navController.graph.startDestinationId
+                                ) {
+                                    inclusive = true
                                 }
                                 launchSingleTop = true
                                 restoreState = true
@@ -106,15 +122,25 @@ fun AppContent() {
                                 text = "BMI calculator",
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontSize = 24.sp,
-                                    color = if (navBackStackEntry?.destination?.hasRoute(BMICalculator::class) == true) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onSurface
+                                    color = if (navBackStackEntry?.destination?.hasRoute(
+                                            BMICalculator::class
+                                        ) == true
+                                    )
+                                        MaterialTheme.colorScheme.surfaceTint
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
                                 ),
                             )
                         },
                         selected = navBackStackEntry?.destination?.hasRoute(BMICalculator::class) == true,
                         onClick = {
+                            appBarLabel = BMICalculator::class.java.simpleName
                             navController.navigate(BMICalculator) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+                                popUpTo(
+                                    navController.currentDestination?.id
+                                        ?: navController.graph.startDestinationId
+                                ) {
+                                    inclusive = true
                                 }
                                 launchSingleTop = true
                                 restoreState = true
@@ -131,38 +157,44 @@ fun AppContent() {
                     .fillMaxSize()
                     .background(greenBackground),
                 topBar = {
-                    CenterAlignedTopAppBar(
-                        title = { Text(text = "Calculator") },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        drawerState.open()
+                    if (isMainScreen)
+                        CenterAlignedTopAppBar(
+                            title = { Text(text = appBarLabel) },
+                            navigationIcon = {
+                                IconButton(
+                                    onClick = {
+                                        scope.launch {
+                                            drawerState.open()
+                                        }
                                     }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Menu,
+                                        contentDescription = "Menu button"
+                                    )
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Menu,
-                                    contentDescription = "Menu button"
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    )
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                titleContentColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
                 }
-            ) { innerPadding ->
+            ) { innerPaddingValues ->
                 val calculatorViewModel = koinViewModel<CalculatorViewModel>()
+                val bmiCalculatorViewModel = koinViewModel<BMICalculatorViewModel>()
                 val uiState by calculatorViewModel.uiState.collectAsStateWithLifecycle()
+                val bmiState by bmiCalculatorViewModel.uiState.collectAsStateWithLifecycle()
 
                 CalculatorNavHost(
-                    modifier = Modifier
-                        .padding(bottom = innerPadding.calculateBottomPadding()),
+                    paddingValues = innerPaddingValues,
+                    modifier = Modifier,
                     uiState = uiState,
+                    bmiState = bmiState,
                     navHostController = navController,
-                    onClickOperation = calculatorViewModel::onEvent
+                    onClickOperation = calculatorViewModel::onEvent,
+                    onGenderSelected = bmiCalculatorViewModel::onEvent,
+                    onUserDataInput = bmiCalculatorViewModel::onEvent
                 )
 
             }

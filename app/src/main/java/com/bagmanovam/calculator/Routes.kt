@@ -7,3 +7,6 @@ object Calculator
 
 @Serializable
 object BMICalculator
+
+@Serializable
+object BMIUserInputScreen
