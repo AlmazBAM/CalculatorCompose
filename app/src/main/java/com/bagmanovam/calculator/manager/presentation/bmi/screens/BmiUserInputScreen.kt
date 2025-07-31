@@ -1,5 +1,6 @@
 package com.bagmanovam.calculator.manager.presentation.bmi.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bagmanovam.calculator.R
 import com.bagmanovam.calculator.core.presentation.DataInputCard
+import com.bagmanovam.calculator.core.presentation.TextInputCard
 import com.bagmanovam.calculator.manager.presentation.bmi.events.BmiCalculatorEvent
 import com.bagmanovam.calculator.manager.presentation.bmi.state.BmiState
 import com.bagmanovam.calculator.ui.theme.CalculatorTheme
@@ -46,8 +49,12 @@ fun BMIUserInputScreen(
     paddingValues: PaddingValues
 ) {
     var isShowDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     Box(
-        modifier = modifier.fillMaxSize().padding(paddingValues),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(paddingValues),
     ) {
         Column(
             modifier = modifier
@@ -110,17 +117,19 @@ fun BMIUserInputScreen(
                     onMinusClicked = { onUserDataInput(BmiCalculatorEvent.OnAgeMinusClicked) }
                 )
             }
-            DataInputCard(
-                modifier = modifier,
-                isTextField = true,
+            TextInputCard(
+                modifier = modifier.fillMaxWidth(),
                 value = bmiState.height,
                 label = R.string.height,
                 onHeightEntered = { onUserDataInput(BmiCalculatorEvent.OnHeightEntered(it)) }
-            ) { }
+            )
             Button(
                 modifier = modifier.fillMaxWidth(),
                 onClick = {
-                    isShowDialog = true
+                    if (bmiState.isHeightCorrect)
+                        isShowDialog = true
+                    else
+                        Toast.makeText(context, "Введите корректный рост", Toast.LENGTH_SHORT).show()
                 }
             ) {
                 Text(

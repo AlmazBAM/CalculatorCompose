@@ -1,5 +1,6 @@
 package com.bagmanovam.calculator.manager.presentation.bmi
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bagmanovam.calculator.manager.presentation.bmi.events.BmiCalculatorEvent
@@ -18,6 +19,8 @@ class BMICalculatorViewModel : ViewModel() {
         BmiState()
     )
 
+    private val heightRegex = Regex("^[1-2][0-9][0-9]$")
+
     fun onEvent(bmiCalculatorEvent: BmiCalculatorEvent) {
         when (bmiCalculatorEvent) {
             BmiCalculatorEvent.OnAgeMinusClicked -> {
@@ -28,6 +31,7 @@ class BMICalculatorViewModel : ViewModel() {
                     )
                 }
             }
+
             BmiCalculatorEvent.OnAgePlusClicked -> {
                 var currentAge = _uiState.value.age
                 _uiState.value.age
@@ -37,6 +41,7 @@ class BMICalculatorViewModel : ViewModel() {
                     )
                 }
             }
+
             is BmiCalculatorEvent.OnGenderSelected -> {
                 _uiState.update {
                     it.copy(
@@ -44,9 +49,16 @@ class BMICalculatorViewModel : ViewModel() {
                     )
                 }
             }
-            is BmiCalculatorEvent.OnHeightEntered -> {
 
+            is BmiCalculatorEvent.OnHeightEntered -> {
+                _uiState.update {
+                    it.copy(
+                        height = bmiCalculatorEvent.height,
+                        isHeightCorrect = heightRegex.matches(bmiCalculatorEvent.height)
+                    )
+                }
             }
+
             BmiCalculatorEvent.OnWeightMinusClicked -> {
                 var currentWeight = _uiState.value.weight
                 _uiState.update {
@@ -55,6 +67,7 @@ class BMICalculatorViewModel : ViewModel() {
                     )
                 }
             }
+
             BmiCalculatorEvent.OnWeightPlusClicked -> {
                 var currentWeight = _uiState.value.weight
                 _uiState.update {
