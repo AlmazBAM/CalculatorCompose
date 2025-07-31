@@ -50,6 +50,7 @@ fun BMIUserInputScreen(
 ) {
     var isShowDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val heightRegex = Regex("^[1-2][0-9][0-9]$")
 
     Box(
         modifier = modifier
@@ -126,7 +127,7 @@ fun BMIUserInputScreen(
             Button(
                 modifier = modifier.fillMaxWidth(),
                 onClick = {
-                    if (bmiState.isHeightCorrect)
+                    if (heightRegex.matches(bmiState.height))
                         isShowDialog = true
                     else
                         Toast.makeText(context, "Введите корректный рост", Toast.LENGTH_SHORT).show()

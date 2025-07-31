@@ -193,6 +193,7 @@ fun TextInputCard(
                 textStyle = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 32.sp,
                     lineHeight = 32.sp,
+                    color = MaterialTheme.colorScheme.secondary
                 ),
                 onValueChange = { onHeightEntered(it) },
                 value = value,
@@ -202,6 +203,7 @@ fun TextInputCard(
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 24.sp,
                             lineHeight = 24.sp,
+                            color = MaterialTheme.colorScheme.secondary
                         ),
                         textAlign = TextAlign.Center
                     )

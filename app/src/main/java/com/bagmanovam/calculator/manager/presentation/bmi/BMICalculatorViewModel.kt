@@ -1,6 +1,5 @@
 package com.bagmanovam.calculator.manager.presentation.bmi
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bagmanovam.calculator.manager.presentation.bmi.events.BmiCalculatorEvent
@@ -18,8 +17,6 @@ class BMICalculatorViewModel : ViewModel() {
         SharingStarted.WhileSubscribed(5000),
         BmiState()
     )
-
-    private val heightRegex = Regex("^[1-2][0-9][0-9]$")
 
     fun onEvent(bmiCalculatorEvent: BmiCalculatorEvent) {
         when (bmiCalculatorEvent) {
@@ -53,8 +50,7 @@ class BMICalculatorViewModel : ViewModel() {
             is BmiCalculatorEvent.OnHeightEntered -> {
                 _uiState.update {
                     it.copy(
-                        height = bmiCalculatorEvent.height,
-                        isHeightCorrect = heightRegex.matches(bmiCalculatorEvent.height)
+                        height = bmiCalculatorEvent.height
                     )
                 }
             }
