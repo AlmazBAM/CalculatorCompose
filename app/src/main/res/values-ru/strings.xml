@@ -3,6 +3,8 @@
     <string name="continue_button">Продолжить</string>
 
     <string name="choose_gender">Пожалуйста выберите свой пол</string>
+    <string name="choose_gender_befoe_continue">Пожалуйста выберите свой пол</string>
+
     <string name="male">Парень</string>
     <string name="female">Девушка</string>
 </resources>

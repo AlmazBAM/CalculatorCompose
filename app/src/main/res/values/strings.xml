@@ -4,7 +4,10 @@
     <string name="calculate_button">Calculate</string>
 
     <string name="bmi_calculator">BMI calculator</string>
+
     <string name="choose_gender">Please choose your gender</string>
+    <string name="choose_gender_befoe_continue">Please choose your gender</string>
+
     <string name="modify_values">Please Modify the values</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
